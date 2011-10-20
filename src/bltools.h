@@ -55,7 +55,8 @@ namespace bltools
 	}
 	unsigned long timestamp()
 	{
-		return static_cast<double>((boost::posix_time::ptime(boost::posix_time::second_clock::universal_time()) - EPOCH).total_milliseconds());
+		
+		return (boost::posix_time::ptime(boost::posix_time::microsec_clock::universal_time()) - EPOCH).total_milliseconds();
 	}
 };
 

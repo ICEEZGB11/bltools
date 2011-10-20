@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <math.h>
 #include <stdlib.h>
 
 #include "../deps/boost/boost/algorithm/string.hpp"
@@ -96,7 +97,7 @@ int main(int argc,char* argv[])
 	if(out.fail())
 		bltools::dump("Couldn't open the output BLB for writing.",1);
 	
-	const aiScene* scene = importer.ReadFile(inFile,aiProcess_FixInfacingNormals | aiProcess_RemoveRedundantMaterials | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_GenNormals | aiProcess_GenUVCoords);
+	const aiScene* scene = importer.ReadFile(inFile,aiProcess_RemoveRedundantMaterials | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_GenNormals | aiProcess_GenUVCoords);
 	
 	if(scene == NULL)
 		bltools::dump("Couldn't load the input 3d model. The model is probably broken, try re-exporting it.",1);
@@ -173,14 +174,6 @@ int main(int argc,char* argv[])
 			bltools::print((std::string("[Mesh ") + temp.str() + std::string("]")).c_str(),BLTOOLS_BLUE);
 		}
 		
-		if(!(mesh->mPrimitiveTypes & aiPrimitiveType_POLYGON))
-		{	
-			//If you report this as a bug you're dickhead (ie. Demian).
-			bltools::print("\tTriangulated polygons, skipping. You need to export with quad polygons instead of triangles. (TODO: detriangulate)",BLTOOLS_RED);
-		
-			continue;
-		}
-		
 		if(!mesh->HasNormals())
 		{
 			bltools::print("\tNo normals, skipping. You need to export with them for this to work.",BLTOOLS_RED);
@@ -190,18 +183,13 @@ int main(int argc,char* argv[])
 		
 		if(!mesh->GetNumUVChannels() < 2)
 			bltools::print("\tNo texture coordinates available, using default.",BLTOOLS_BLUE);
-	
+			
 		const char* name = mesh->mName.data;
 		unsigned int faceCount = mesh->mNumFaces;
-		quadCount += faceCount;
+		const char* tex = "SIDE";
 		
-		bool hasColours = mesh->GetNumColorChannels() >= 3;
-		
-		for(unsigned int j=0;j<faceCount;j++)
+		if(name != NULL)
 		{
-			const char* tex = "SIDE";
-			const struct aiFace* face = &mesh->mFaces[j];
-			
 			if(boost::iequals(name,"top"))
 				tex = "SIDE";
 			else if(boost::iequals(name,"ramp"))
@@ -212,34 +200,46 @@ int main(int argc,char* argv[])
 				tex = "BOTTOMLOOP";
 			else
 				tex = "SIDE";
-				
-			quadStream << std::endl << "TEX:" << tex << std::endl;
+		}
+		
+		bool triangulated = !(mesh->mPrimitiveTypes & aiPrimitiveType_POLYGON);
+		
+		for(unsigned int j=0;j<faceCount;j++)
+		{
+			const struct aiFace* face = &mesh->mFaces[j];
 			
+			quadStream << std::endl << "TEX:" << tex << std::endl;
+		
 			unsigned int index1 = face->mIndices[0];
 			unsigned int index2 = face->mIndices[1];
 			unsigned int index3 = face->mIndices[2];
-			unsigned int index4 = face->mIndices[3];
+			unsigned int index4;
 			
+			if(triangulated)
+				index4 = index3;
+			else
+				index4 = face->mIndices[3];
+		
 			{
 				aiVector3D vertex1 = mesh->mVertices[index1];
 				aiVector3D vertex2 = mesh->mVertices[index2];
 				aiVector3D vertex3 = mesh->mVertices[index3];
 				aiVector3D vertex4 = mesh->mVertices[index4];
-				
-				quadStream << "POSITION:" << std::endl;
-				quadStream << vertex1.x << " " << vertex1.y << " " << vertex1.z * 2.0 << std::endl;
-				quadStream << vertex2.x << " " << vertex2.y << " " << vertex2.z * 2.0 << std::endl;
-				quadStream << vertex3.x << " " << vertex3.y << " " << vertex3.z * 2.0 << std::endl;
-				quadStream << vertex4.x << " " << vertex4.y << " " << vertex4.z * 2.0 << std::endl;
-			}
 			
+				quadStream << "POSITION:" << std::endl;
+				quadStream << vertex1.x << " " << vertex1.z << " " << vertex1.y * 2.0 << std::endl;
+				quadStream << vertex2.x << " " << vertex2.z << " " << vertex2.y * 2.0 << std::endl;
+				quadStream << vertex3.x << " " << vertex3.z << " " << vertex3.y * 2.0 << std::endl;
+				quadStream << vertex4.x << " " << vertex4.z << " " << vertex4.y * 2.0 << std::endl;
+			}
+		
 			if(mesh->GetNumUVChannels() >= 2)
 			{
 				aiVector3D* coord1 = mesh->mTextureCoords[index1];
 				aiVector3D* coord2 = mesh->mTextureCoords[index2];
 				aiVector3D* coord3 = mesh->mTextureCoords[index3];
 				aiVector3D* coord4 = mesh->mTextureCoords[index4];
-				
+			
 				quadStream << "UV COORDS:" << std::endl;
 				quadStream << coord1->x << " " << coord1->y << std::endl;
 				quadStream << coord2->x << " " << coord2->y << std::endl;
@@ -254,34 +254,36 @@ int main(int argc,char* argv[])
 				quadStream << "1 1" << std::endl;
 				quadStream << "0 1" << std::endl;
 			}
-			
+		
 			if(mesh->GetNumColorChannels() >= 4)
 			{
 				aiColor4D* colour1 = mesh->mColors[index1];
 				aiColor4D* colour2 = mesh->mColors[index2];
 				aiColor4D* colour3 = mesh->mColors[index3];
 				aiColor4D* colour4 = mesh->mColors[index4];
-				
+			
 				quadStream << "COLORS:" << std::endl;
 				quadStream << colour1->r << " " << colour1->g << " " << colour1->b << " " << colour1->a << std::endl;
 				quadStream << colour2->r << " " << colour2->g << " " << colour2->b << " " << colour2->a << std::endl;
 				quadStream << colour3->r << " " << colour3->g << " " << colour3->b << " " << colour3->a << std::endl;
 				quadStream << colour4->r << " " << colour4->g << " " << colour4->b << " " << colour4->a << std::endl;
 			}
-			
+		
 			{
 				aiVector3D normal1 = mesh->mNormals[index1];
 				aiVector3D normal2 = mesh->mNormals[index2];
 				aiVector3D normal3 = mesh->mNormals[index3];
 				aiVector3D normal4 = mesh->mNormals[index4];
-				
+
 				quadStream << "NORMALS:" << std::endl;
-				quadStream << normal1.x << " " << normal1.y << " " << normal1.z << std::endl;
-				quadStream << normal2.x << " " << normal2.y << " " << normal2.z << std::endl;
-				quadStream << normal3.x << " " << normal3.y << " " << normal3.z << std::endl;
-				quadStream << normal4.x << " " << normal4.y << " " << normal4.z << std::endl;
+				quadStream << normal1.x << " " << normal1.z << " " << normal1.y << std::endl;
+				quadStream << normal2.x << " " << normal2.z << " " << normal2.y << std::endl;
+				quadStream << normal3.x << " " << normal3.z << " " << normal3.y << std::endl;
+				quadStream << normal4.x << " " << normal4.z << " " << normal4.y << std::endl;
 			}
 		}
+		
+		quadCount += faceCount;
 	}
 	
 	out << quadCount << std::endl << quadStream.str().c_str();

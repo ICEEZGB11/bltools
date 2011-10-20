@@ -227,10 +227,10 @@ int main(int argc,char* argv[])
 				aiVector3D vertex4 = mesh->mVertices[index4];
 			
 				quadStream << "POSITION:" << std::endl;
-				quadStream << vertex1.x << " " << vertex1.z << " " << vertex1.y * 2.0 << std::endl;
-				quadStream << vertex2.x << " " << vertex2.z << " " << vertex2.y * 2.0 << std::endl;
-				quadStream << vertex3.x << " " << vertex3.z << " " << vertex3.y * 2.0 << std::endl;
-				quadStream << vertex4.x << " " << vertex4.z << " " << vertex4.y * 2.0 << std::endl;
+				quadStream << vertex1.x << " " << vertex1.z << " " << vertex1.y * 2.5 << std::endl;
+				quadStream << vertex2.x << " " << vertex2.z << " " << vertex2.y * 2.5 << std::endl;
+				quadStream << vertex3.x << " " << vertex3.z << " " << vertex3.y * 2.5 << std::endl;
+				quadStream << vertex4.x << " " << vertex4.z << " " << vertex4.y * 2.5 << std::endl;
 			}
 		
 			if(mesh->GetNumUVChannels() >= 2)

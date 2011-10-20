@@ -43,9 +43,23 @@ int main(int argc,char* argv[])
 		else if(boost::equals(arg,"-v") || boost::equals(arg,"--version"))
 			bltools::dump(BLTOOLS_3DTOBLB_VERSION);
 		else if((boost::equals(arg,"-s") || boost::equals(arg,"--size")) && hasArgument)
+		{
 			brickSize = argv[i + 1];
+			i++;
+			continue;
+		}
 		else if((boost::equals(arg,"-o") || boost::equals(arg,"--output")) && hasArgument)
+		{
 			outFile = argv[i + 1];
+			i++;
+			continue;
+		}
+		else if((boost::equals(arg,"-i") || boost::equals(arg,"--input")) && hasArgument)
+		{
+			inFile = argv[i + 1];
+			i++;
+			continue;
+		}
 		else if(inFile == NULL || boost::iequals(inFile,""))
 			inFile = arg;
 		else if(outFile == NULL || boost::iequals(outFile,""))
@@ -114,16 +128,18 @@ int main(int argc,char* argv[])
 				{
 					if(brickHeight == 1)
 						out << "b";
-					if(z == 0)
+					else if(z == 0)
 						out << "u";
-					if(z == brickHeight - 1)
+					else if(z == brickHeight - 1)
 						out << "d";
 					else
 						out << "x";
 				}
+				
+				out << std::endl;
 			}
 			
-			out << std::endl << std::endl;
+			out << std::endl;
 		}
 	}
 	

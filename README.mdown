@@ -8,7 +8,7 @@ Bltools is a set of command line tools for Blockland.
 
 ## Download
 
-* 3dtoblb - [Windows]() - [Linux]
+* 3dtoblb - [Windows](http://dl.dropbox.com/u/551734/software/3dtoblb-windows.zip) - [Linux](http://dl.dropbox.com/u/551734/software/3dtoblb-linux.tar.gz)
 
 ## Usage
 

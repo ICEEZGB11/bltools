@@ -34,7 +34,7 @@ namespace bltools
 				SetConsoleTextAttribute(console,FOREGROUND_BLUE);
 			
 			printf("%s\n",message);
-			SetConsoleTextAttribute(console,0);
+			SetConsoleTextAttribute(console,FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 		#elif __GNUC__
 			if(colour & BLTOOLS_RED)
 				printf("%c[%d;%dm%s%c[%dm\n",27,0,31,message,27,0);
@@ -48,9 +48,9 @@ namespace bltools
 			printf("%s\n",message);
 		#endif
 	}
-	void dump(const char* message,int code=0)
+	void dump(const char* message,int code=0,int colour=BLTOOLS_NATIVE)
 	{
-		printf("%s\n",message);
+		print(message,colour);
 		exit(code);
 	}
 	unsigned long timestamp()

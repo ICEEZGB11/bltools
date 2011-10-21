@@ -8,10 +8,9 @@
 #include <stdlib.h>
 
 #include "../deps/boost/boost/algorithm/string.hpp"
-#include "../deps/boost/boost/filesystem/v3/path.hpp"
 #include "../deps/assimp/include/assimp.hpp"
 #include "../deps/assimp/include/aiVector3D.h"
-#include "../deps/assimp/include/aiPostProcess.h"
+#include "../deps/assimp/include/aiPostProcess.h" 
 #include "../deps/assimp/include/aiScene.h"
 #include "../deps/assimp/include/aiConfig.h"
 #include "../deps/assimp/include/aiMesh.h"
@@ -24,8 +23,6 @@ int main(int argc,char* argv[])
 {
 	const char* outFile = "";
 	const char* inFile = "";
-	const char* outFormat = "";
-	const char* inFormat = "";
 	const char* brickSize = "";
 	unsigned int brickWidth = 1;
 	unsigned int brickLength = 1;
@@ -76,31 +73,36 @@ int main(int argc,char* argv[])
 		"  -i, --input\tchange the file to read\n");
 	
 	if(inFile == NULL || boost::iequals(inFile,""))
-		bltools::dump("You haven't provided the input 3d model filename.",1);
+		bltools::dump("You haven't provided the input 3d model filename.",1,BLTOOLS_RED);
 	if(outFile == NULL || boost::iequals(outFile,""))
-		bltools::dump("You haven't provided the output BLB filename.",1);
+		bltools::dump("You haven't provided the output BLB filename.",1,BLTOOLS_RED);
 	
 	std::ifstream in(inFile);
 	
 	if(in.fail())
-		bltools::dump("Couldn't open the input 3d model for reading.",1);
+		bltools::dump("Couldn't open the input 3d model for reading.",1,BLTOOLS_RED);
 	else
 		in.close();
 		
 	Assimp::Importer importer;
 	
-	if(!importer.IsExtensionSupported(boost::filesystem::path(inFile).extension().c_str()))
-		bltools::dump("The input 3d model is not of a supported 3d model format.",1);
+	{
+		std::string path(inFile);
+		std::string extension(path.substr(path.find_last_of(".")));
+		
+		if(!importer.IsExtensionSupported(extension.c_str()))
+			bltools::dump("The input 3d model is not of a supported 3d model format.",1,BLTOOLS_RED);
+	}
 	
 	std::ofstream out(outFile);
 	
 	if(out.fail())
-		bltools::dump("Couldn't open the output BLB for writing.",1);
+		bltools::dump("Couldn't open the output BLB for writing.",1,BLTOOLS_RED);
 	
 	const aiScene* scene = importer.ReadFile(inFile,aiProcess_RemoveRedundantMaterials | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_GenNormals | aiProcess_GenUVCoords);
 	
 	if(scene == NULL)
-		bltools::dump("Couldn't load the input 3d model. The model is probably broken, try re-exporting it.",1);
+		bltools::dump("Couldn't load the input 3d model. The model is probably broken, try re-exporting it.",1,BLTOOLS_RED);
 
 	bltools::print("Converting...\n");
 
@@ -108,11 +110,17 @@ int main(int argc,char* argv[])
 	boost::split(brickSizes,brickSize,boost::is_any_of("x"));
 	
 	if(brickSizes.size() > 0)
-		brickWidth = std::max(atoi(brickSizes[0].c_str()),1);
+		brickWidth = atoi(brickSizes[0].c_str());
 	if(brickSizes.size() > 1)
-		brickLength = std::max(atoi(brickSizes[1].c_str()),1);
+		brickLength = atoi(brickSizes[1].c_str());
 	if(brickSizes.size() > 2)
-		brickHeight = std::max(atoi(brickSizes[2].c_str()),1);
+		brickHeight = atoi(brickSizes[2].c_str());
+	if(brickWidth < 1)
+		brickWidth = 1;
+	if(brickLength < 1)
+		brickLength = 1;
+	if(brickHeight < 1)
+		brickHeight = 1;
 		
 	out << brickWidth << " " << brickLength << " " << brickHeight << std::endl;
 	out << "SPECIAL" << std::endl << std::endl;
@@ -181,7 +189,7 @@ int main(int argc,char* argv[])
 			continue;
 		}
 		
-		if(!mesh->GetNumUVChannels() < 2)
+		if(!mesh->GetNumUVChannels())
 			bltools::print("\tNo texture coordinates available, using default.",BLTOOLS_BLUE);
 			
 		const char* name = mesh->mName.data;

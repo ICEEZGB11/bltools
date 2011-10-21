@@ -1,14 +1,81 @@
-# Introduction
+## Introduction
 
 Bltools is a set of command line tools for Blockland.
 
-# Features
+## Features
 
 * 3dtoblb - converts heaps of popular 3d model formats into Blockland Brick (.blb) files.
 
-# Building
+## Download
 
-First download [Assimp >= 2.0](http://assimp.sourceforge.net/) and [Boost >= 1.47.0](http://www.boost.org/). Once you've downloaded both, place them both in the deps folder under the folder names boost and assimp. You also need to download [Scons](http://scons.org/), which is cross-platform building tool.  
+* 3dtoblb - [Windows]() - [Linux]
+
+## Usage
+
+### 3dtoblb
+
+Supported formats:
+
+* Collada (.dae)
+* Blender 3D (.blend)
+* 3ds Max 3DS (.3ds)
+* 3ds Max ASE (.ase)
+* Wavefront Object (.obj)
+* Stanford Polygon Library (.ply)
+* AutoCAD DXF (.dxf)
+* LightWave (.lwo)
+* Modo (.lxo)
+* Stereolithography (.stl)
+* AC3D (.ac)
+* Milkshape 3D (.ms3d)
+* TrueSpace (.cob,.scn)
+* Valve Model (.smd,.vta)
+* Quake I Mesh (.mdl)
+* Quake II Mesh (.md2)
+* Quake III Mesh (.md3)
+* Quake III BSP (.pk3)
+* Return to Castle Wolfenstein (.mdc)
+* Doom 3 (.md5*)
+* DirectX X (.x)
+* BlitzBasic 3D (.b3d)
+* Quick3D (.q3d,.q3s)
+* Ogre XML (.mesh.xml)
+* Irrlicht Mesh (.irrmesh)
+* Irrlicht Scene (.irr)
+* Neutral File Format (.nff)
+* Sense8 WorldToolKit (.nff)
+* Object File Format (.off)
+* PovRAY Raw (.raw)
+* Terragen Terrain (.ter)
+* 3D GameStudio (.mdl)
+* 3D GameStudio Terrain (.hmp)
+* Izware Nendo (.ndo)
+
+Simply use:
+
+	3dtoblb [OPTIONS] [INPUT] [OUTPUT]
+
+For example (in the tests folder):
+
+	3dtoblb sphere.3ds sphere.blb
+
+If you need more help, and to see other options (not many at the moment, but still):
+
+	3dtoblb --help
+	//OR
+	3dtoblb -h
+	//OR
+	3dtoblb
+
+The only useful option at the moment is the size argument, which generates a brick grid and collision for you (all bricks are 1x1x1 by default), eg.:
+
+	3dtoblb --size 3x2x5 sphere.3ds sphere.blb
+
+The above generates a brick file from a 3ds file with the brick size of 3 (x axis) times 2 (y axis) times 5 (z axis), with the brick grid pre-generated.
+
+## Building
+
+First, you need to download [Scons](http://scons.org/), which is cross-platform building tool. Then just clone this repository.
   
 To build on all platforms, simply type:
 
@@ -18,9 +85,9 @@ If you need to clean the build, use:
 
 	scons -c
 	
-The include files are in the deps folder by default and the lib folder contains the libraries for all platforms, so you don't really need to download the dependencies, however I'd suggest you build the libs and place them there and include the latest headers in the deps folder.
+If you want to download the latest versions of the dependencies, download [Assimp >= 2.0](http://assimp.sourceforge.net/) and [Boost >= 1.47.0](http://boost.org) and place the include files in the deps folder and the built *static* *multi-threaded* libraries in the lib folder.
 
-# Licence
+## Licence
 
 Copyright (c) 2011, Zack Corr
 

@@ -51,7 +51,11 @@ Supported formats:
 * 3D GameStudio Terrain (.hmp)
 * Izware Nendo (.ndo)
 
-Simply use:
+#### The simplest way for computer illiterate users (on Windows) to use 3dtoblb is to simply drag the 3d model file onto the executable. If that works for you then you don't need to follow the instructions below.
+If you want to do it **manually**, then follow the steps below.
+3dtoblb is a command line tool. So you need to open up the command prompt/terminal (easiest way for Windows users, All Programs -> Run "cmd") and go to the directory with the 3dtoblb file.
+
+Then simply use this command in the terminal/command prompt:
 
 	3dtoblb [OPTIONS] [INPUT] [OUTPUT]
 
@@ -75,6 +79,8 @@ The above generates a brick file from a 3ds file with the brick size of 3 (x axi
 
 ## Building
 
+*This is only if you want to compile the executables source. If you have no fucking idea what you're doing, just download the prebuilt executables under the download heading*.
+
 First, you need to download [Scons](http://scons.org/), which is cross-platform building tool. Then just clone this repository.
   
 To build on all platforms, simply type:
@@ -89,7 +95,7 @@ If you want to download the latest versions of the dependencies, download [Assim
 
 ## Licence
 
-Copyright (c) 2011, Zack Corr
+Copyright (c) 2011, Zack Corr <zack@zack0wack0.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

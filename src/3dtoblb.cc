@@ -17,7 +17,7 @@
 
 #include "bltools.h"
 
-#define BLTOOLS_3DTOBLB_VERSION "v0.0.1pre"
+#define BLTOOLS_3DTOBLB_VERSION "v0.0.2"
 
 int main(int argc,char* argv[])
 {
@@ -65,7 +65,7 @@ int main(int argc,char* argv[])
 	}
 	
 	if(needsHelp)
-		bltools::dump("Usage: 3dtoblb [OPTIONS] INPUT OUTPUT\n\n"
+		bltools::dump("Usage: 3dtoblb [OPTIONS] INPUT [OUTPUT]\n\n"
 		"  -h, --help\tdisplay this message and exit\n"
 		"  -v, --version\tdisplay the version and exit\n"
 		"  -s, --size\tset the brick size delimited by \'x\', defaults to \'1x1x1\'\n"
@@ -75,7 +75,7 @@ int main(int argc,char* argv[])
 	if(inFile == NULL || boost::iequals(inFile,""))
 		bltools::dump("You haven't provided the input 3d model filename.",1,BLTOOLS_RED);
 	if(outFile == NULL || boost::iequals(outFile,""))
-		bltools::dump("You haven't provided the output BLB filename.",1,BLTOOLS_RED);
+		outFile = strdup((std::string(inFile) + std::string(".blb")).c_str());
 	
 	std::ifstream in(inFile);
 	
@@ -104,7 +104,7 @@ int main(int argc,char* argv[])
 	if(scene == NULL)
 		bltools::dump("Couldn't load the input 3d model. The model is probably broken, try re-exporting it.",1,BLTOOLS_RED);
 
-	bltools::print("Converting...\n");
+	bltools::print("Converting...\n",BLTOOLS_GREEN);
 
 	std::vector<std::string> brickSizes;
 	boost::split(brickSizes,brickSize,boost::is_any_of("x"));
@@ -121,6 +121,27 @@ int main(int argc,char* argv[])
 		brickLength = 1;
 	if(brickHeight < 1)
 		brickHeight = 1;
+		
+	{
+		std::stringstream temp;
+		temp << inFile;
+		
+		bltools::print((std::string("[Input\t") + temp.str() + std::string("]")).c_str(),BLTOOLS_BLUE);
+	}
+	
+	{
+		std::stringstream temp;
+		temp << outFile;
+		
+		bltools::print((std::string("[Output\t") + temp.str() + std::string("]")).c_str(),BLTOOLS_BLUE);
+	}
+
+	{
+		std::stringstream temp;
+		temp << brickWidth << "x" << brickLength << "x" << brickHeight;
+		
+		bltools::print((std::string("[Size\t") + temp.str() + std::string("]")).c_str(),BLTOOLS_BLUE);
+	}
 		
 	out << brickWidth << " " << brickLength << " " << brickHeight << std::endl;
 	out << "SPECIAL" << std::endl << std::endl;
@@ -176,10 +197,9 @@ int main(int argc,char* argv[])
 	
 		{
 			std::stringstream temp;
-			
 			temp << i + 1;
 			
-			bltools::print((std::string("[Mesh ") + temp.str() + std::string("]")).c_str(),BLTOOLS_BLUE);
+			bltools::print((std::string("[Mesh\t") + temp.str() + std::string("]")).c_str(),BLTOOLS_BLUE);
 		}
 		
 		if(!mesh->HasNormals())
@@ -299,7 +319,13 @@ int main(int argc,char* argv[])
 	unsigned long finishedAt = bltools::timestamp();
 	
 	out.close();
-	std::cout << std::endl << "Completed converting in " << finishedAt - beganAt << "ms." << std::endl;
+	
+	{
+		std::stringstream temp;
+		temp << finishedAt - beganAt;
+		
+		bltools::print((std::string("\nCompleted converting in ") + temp.str() + std::string("ms.")).c_str(),BLTOOLS_GREEN);
+	}
 
 	return 0;
 }
